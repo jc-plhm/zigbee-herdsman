@@ -417,7 +417,6 @@ class EZSPAdapter extends Adapter {
         if (ieeeAddr == null) {
             ieeeAddr = `0x${this.driver.ieee.toString()}`;
         }
-        console.log("sendZclFrameToEndpointInternal %s:%i/%i (%i,%i,%i)", ieeeAddr, networkAddress, endpoint, 0, 0, this.driver.queue.count())
         debug('sendZclFrameToEndpointInternal %s:%i/%i (%i,%i,%i)',
             ieeeAddr, networkAddress, endpoint, 0, 0, this.driver.queue.count());
         let response = null;
@@ -441,9 +440,6 @@ class EZSPAdapter extends Adapter {
         frame.destinationEndpoint = endpoint;
         frame.groupId = 0;
         frame.options = EmberApsOption.APS_OPTION_ENABLE_ROUTE_DISCOVERY | EmberApsOption.APS_OPTION_RETRY;
-
-        console.log("AdapterFrame:: ", frame)
-        console.log("buffer: ", zclFrame.toBuffer())
 
         this.driver.setNode(networkAddress, new EmberEUI64(ieeeAddr));
         const dataConfirmResult = await this.driver.request(networkAddress, frame, buffer);

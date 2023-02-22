@@ -317,7 +317,7 @@ class ZclFrame {
                     }
 
                     return payload;
-                }else if (command === Foundation.discoverCommandsReceivedRsp) {
+                } else if (command === Foundation.discoverCommandsReceivedRsp) {
                     const payload: {[s: string]: BuffaloTsType.Value} = {};
                     payload.discComplete = buffalo.readUInt8();
                     payload.cmdInfos = [];
@@ -398,7 +398,7 @@ class ZclFrame {
     // List of commands is not completed, feel free to add more.
     public isCommand(
         commandName: 'read' | 'report' | 'readRsp' | 'remove' | 'add' | 'write' | 'enrollReq' | 'configReport' |
-            'checkin' | 'writeRsp'
+            'checkin' | 'writeRsp' | 'discover' |'discoverRsp' |'discoverCommandsReceived' | 'discoverCommandsReceivedRsp'
     ): boolean {
         return this.getCommand().name === commandName;
     }

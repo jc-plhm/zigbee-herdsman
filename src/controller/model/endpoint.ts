@@ -758,14 +758,10 @@ class Endpoint extends Entity {
             options.manufacturerCode, options.transactionSequenceNumber ?? ZclTransactionSequenceNumber.next(),
             'discover', cluster.ID, payload, options.reservedBits
         );
-        console.log("ATTR options: ", options)
-        console.log("FRAME GET COMMAND: ", JSON.stringify(frame.getCommand(), null, 2))
-        console.log("FRAME BUFFER: ", frame.toBuffer())
 
         const log = `desicover Attributes ${this.deviceIeeeAddress}/${this.ID} ` +
             `${cluster.name}(${JSON.stringify(payload)}, ${JSON.stringify(options)})`;
         debug.info(log);
-        console.log(log)
 
         try {
             const result = await this.sendRequest(async () => {
@@ -777,7 +773,6 @@ class Endpoint extends Entity {
 
             if (!options.disableResponse) {
                 this.checkStatus(result.frame.Payload);
-                console.log(result)
             }
 
         } catch (error) {
@@ -796,14 +791,10 @@ class Endpoint extends Entity {
             options.manufacturerCode, options.transactionSequenceNumber ?? ZclTransactionSequenceNumber.next(),
             'discoverCommandsReceived', cluster.ID, payload, options.reservedBits
         );
-        console.log("CMD options: ", options)
-        console.log("FRAME GET COMMAND: ", JSON.stringify(frame.getCommand(), null, 2))
-        console.log("FRAME BUFFER: ", frame.toBuffer())
 
         const log = `discover Commands Received ${this.deviceIeeeAddress}/${this.ID} ` +
             `${cluster.name}(${JSON.stringify(payload)}, ${JSON.stringify(options)})`;
         debug.info(log);
-        console.log(log)
 
         try {
             const result = await this.sendRequest(async () => {
@@ -815,9 +806,7 @@ class Endpoint extends Entity {
 
             if (!options.disableResponse) {
                 this.checkStatus(result.frame.Payload);
-                console.log(result)
             }
-
 
         } catch (error) {
             error.message = `${log} failed (${error.message})`;

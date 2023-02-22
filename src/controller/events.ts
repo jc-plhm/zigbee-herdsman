@@ -135,7 +135,7 @@ const CommandsLookup: {[s: string]: MessagePayloadType} = {
 
 type MessagePayloadType =
     // Global
-    'attributeReport' | 'readResponse' | 'raw' | 'read' | 'write' |
+    'attributeReport' | 'readResponse' | 'raw' | 'read' | 'write' | 'discoverRsp' | 'discoverCommandsReceivedRsp' |
     // Specific
     'commandOn' | 'commandOffWithEffect' | 'commandStep' | 'commandStop' | 'commandHueNotification' |
     'commandOff' | 'commandStepColorTemp' | 'commandMoveWithOnOff' |

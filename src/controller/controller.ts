@@ -678,6 +678,12 @@ class Controller extends events.EventEmitter {
                 } else if (frame.isCommand('write')) {
                     type = 'write';
                     data = ZclFrameConverter.attributeKeyValue(dataPayload.frame);
+                } else if (frame.isCommand('discoverRsp')){
+                    type ='discoverRsp';
+                    data = dataPayload.frame.Payload
+                } else if (frame.isCommand('discoverCommandsReceivedRsp')){
+                    type ='discoverCommandsReceivedRsp';
+                    data = dataPayload.frame.Payload
                 } else {
                     /* istanbul ignore else */
                     if (frame.isCommand('readRsp')) {
