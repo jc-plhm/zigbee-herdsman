@@ -348,6 +348,14 @@ class ZStackAdapter extends Adapter {
         }, networkAddress);
     }
 
+    public async sendBufferToEndpoint(
+        ieeeAddr: string, networkAddress: number, endpoint: number, zclFrame: ZclFrame, buffer: Buffer, timeout: number,
+        disableResponse: boolean, disableRecovery: boolean, sourceEndpoint?: number,
+    ): Promise<Events.ZclDataPayload> {
+        // TODO IMPLEMENT
+        return null
+    }
+
     public async sendZclFrameToEndpoint(
         ieeeAddr: string, networkAddress: number, endpoint: number, zclFrame: ZclFrame, timeout: number,
         disableResponse: boolean, disableRecovery: boolean, sourceEndpoint?: number,

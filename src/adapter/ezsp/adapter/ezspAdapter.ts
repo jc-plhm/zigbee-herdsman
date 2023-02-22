@@ -409,6 +409,61 @@ class EZSPAdapter extends Adapter {
             };
         }, networkAddress);
     }
+    
+    public async sendBufferToEndpoint(
+        ieeeAddr: string, networkAddress: number, endpoint: number, zclFrame: ZclFrame, buffer: Buffer, timeout: number,
+        disableResponse: boolean, disableRecovery: boolean, sourceEndpoint?: number,
+    ): Promise<Events.ZclDataPayload> {
+        if (ieeeAddr == null) {
+            ieeeAddr = `0x${this.driver.ieee.toString()}`;
+        }
+        console.log("sendZclFrameToEndpointInternal %s:%i/%i (%i,%i,%i)", ieeeAddr, networkAddress, endpoint, 0, 0, this.driver.queue.count())
+        debug('sendZclFrameToEndpointInternal %s:%i/%i (%i,%i,%i)',
+            ieeeAddr, networkAddress, endpoint, 0, 0, this.driver.queue.count());
+        let response = null;
+        const command = zclFrame.getCommand();
+        if (command.hasOwnProperty('response') && disableResponse === false) {
+            response = this.waitForInternal(
+                networkAddress, endpoint,
+                zclFrame.Header.transactionSequenceNumber, zclFrame.Cluster.ID, command.response, timeout
+            );
+        } else if (!zclFrame.Header.frameControl.disableDefaultResponse) {
+            response = this.waitForInternal(
+                networkAddress, endpoint,
+                zclFrame.Header.transactionSequenceNumber, zclFrame.Cluster.ID, Foundation.defaultRsp.ID,
+                timeout,
+            );
+        }
+
+        const frame = this.driver.makeApsFrame(zclFrame.Cluster.ID, disableResponse);
+        frame.profileId = 0x0104;
+        frame.sourceEndpoint = 0x01;
+        frame.destinationEndpoint = endpoint;
+        frame.groupId = 0;
+        frame.options = EmberApsOption.APS_OPTION_ENABLE_ROUTE_DISCOVERY | EmberApsOption.APS_OPTION_RETRY;
+
+        console.log("AdapterFrame:: ", frame)
+        console.log("buffer: ", zclFrame.toBuffer())
+
+        this.driver.setNode(networkAddress, new EmberEUI64(ieeeAddr));
+        const dataConfirmResult = await this.driver.request(networkAddress, frame, buffer);
+        if (!dataConfirmResult) {
+            if (response != null) {
+                response.cancel();
+            }
+            throw Error('sendZclFrameToEndpointInternal error');
+        }
+        if (response !== null) {
+            try {
+                const result = await response.start().promise;
+                return result;
+            } catch (error) {
+                debug('Response timeout (%s:%d,%d)', ieeeAddr, networkAddress, 0);
+            }
+        } else {
+            return null;
+        }
+    }
 
     public async sendZclFrameToEndpoint(
         ieeeAddr: string, networkAddress: number, endpoint: number, zclFrame: ZclFrame, timeout: number,

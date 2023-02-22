@@ -748,6 +748,120 @@ class Endpoint extends Entity {
             throw error;
         }
     }
+    
+    public async discoverAttributes(clusterKey: number | string, options?: Options): Promise<void> {
+        const cluster = Zcl.Utils.getCluster(clusterKey);
+        options = this.getOptionsWithDefaults(options, true, Zcl.Direction.CLIENT_TO_SERVER, cluster.manufacturerCode);
+        const payload = { startAttrId: 0, maxAttrIds: 255 }
+        const frame = Zcl.ZclFrame.create(
+            Zcl.FrameType.GLOBAL, options.direction, options.disableDefaultResponse,
+            options.manufacturerCode, options.transactionSequenceNumber ?? ZclTransactionSequenceNumber.next(),
+            'discover', cluster.ID, payload, options.reservedBits
+        );
+        console.log("ATTR options: ", options)
+        console.log("FRAME GET COMMAND: ", JSON.stringify(frame.getCommand(), null, 2))
+        console.log("FRAME BUFFER: ", frame.toBuffer())
+
+        const log = `desicover Attributes ${this.deviceIeeeAddress}/${this.ID} ` +
+            `${cluster.name}(${JSON.stringify(payload)}, ${JSON.stringify(options)})`;
+        debug.info(log);
+        console.log(log)
+
+        try {
+            const result = await this.sendRequest(async () => {
+                return Entity.adapter.sendZclFrameToEndpoint(
+                    this.deviceIeeeAddress, this.deviceNetworkAddress, this.ID, frame, options.timeout,
+                    options.disableResponse, options.disableRecovery, options.srcEndpoint
+                );
+            }, options.sendWhen);
+
+            if (!options.disableResponse) {
+                this.checkStatus(result.frame.Payload);
+                console.log(result)
+            }
+
+        } catch (error) {
+            error.message = `${log} failed (${error.message})`;
+            debug.error(error.message);
+            throw error;
+        }
+    }
+
+    public async discoverCommandsReceived(clusterKey: number | string, options?: Options): Promise<void> {
+        const cluster = Zcl.Utils.getCluster(clusterKey);
+        options = this.getOptionsWithDefaults(options, true, Zcl.Direction.CLIENT_TO_SERVER, cluster.manufacturerCode);
+        const payload = { startCmdId: 0, maxCmdIds: 255 }
+        const frame = Zcl.ZclFrame.create(
+            Zcl.FrameType.GLOBAL, options.direction, options.disableDefaultResponse,
+            options.manufacturerCode, options.transactionSequenceNumber ?? ZclTransactionSequenceNumber.next(),
+            'discoverCommandsReceived', cluster.ID, payload, options.reservedBits
+        );
+        console.log("CMD options: ", options)
+        console.log("FRAME GET COMMAND: ", JSON.stringify(frame.getCommand(), null, 2))
+        console.log("FRAME BUFFER: ", frame.toBuffer())
+
+        const log = `discover Commands Received ${this.deviceIeeeAddress}/${this.ID} ` +
+            `${cluster.name}(${JSON.stringify(payload)}, ${JSON.stringify(options)})`;
+        debug.info(log);
+        console.log(log)
+
+        try {
+            const result = await this.sendRequest(async () => {
+                return Entity.adapter.sendZclFrameToEndpoint(
+                    this.deviceIeeeAddress, this.deviceNetworkAddress, this.ID, frame, options.timeout,
+                    options.disableResponse, options.disableRecovery, options.srcEndpoint
+                );
+            }, options.sendWhen);
+
+            if (!options.disableResponse) {
+                this.checkStatus(result.frame.Payload);
+                console.log(result)
+            }
+
+
+        } catch (error) {
+            error.message = `${log} failed (${error.message})`;
+            debug.error(error.message);
+            throw error;
+        }
+    }
+
+    public async commandBuffer(
+        clusterKey: number | string, commandKey: number | string, buffer: Buffer, options?: Options,
+    ): Promise<void | KeyValue> {
+        const cluster = Zcl.Utils.getCluster(clusterKey);
+        const command = cluster.getCommand(commandKey);
+        const hasResponse = command.hasOwnProperty('response');
+        options = this.getOptionsWithDefaults(
+            options, hasResponse, Zcl.Direction.CLIENT_TO_SERVER, cluster.manufacturerCode);
+
+        const frame = Zcl.ZclFrame.create(
+            Zcl.FrameType.SPECIFIC, options.direction, options.disableDefaultResponse,
+            options.manufacturerCode, options.transactionSequenceNumber ?? ZclTransactionSequenceNumber.next(),
+            command.name, cluster.ID, {}, options.reservedBits
+        );
+
+        const log = `CommandBuffer ${this.deviceIeeeAddress}/${this.ID} ` +
+            `${cluster.name}.${command.name}(${JSON.stringify(buffer)}, ${JSON.stringify(options)})`;
+        debug.info(log);
+
+        try {
+            const result = await this.sendRequest(async () => {
+                return Entity.adapter.sendBufferToEndpoint(
+                    this.deviceIeeeAddress, this.deviceNetworkAddress, this.ID, frame, buffer, options.timeout,
+                    options.disableResponse, options.disableRecovery, options.srcEndpoint
+                );
+            }, options.sendWhen);
+
+            if (result) {
+                return result.frame.Payload;
+            }
+        } catch (error) {
+            error.message = `${log} failed (${error.message})`;
+            debug.error(error.message);
+            throw error;
+        }
+    }
 
     public async command(
         clusterKey: number | string, commandKey: number | string, payload: KeyValue, options?: Options,
