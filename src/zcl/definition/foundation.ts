@@ -141,6 +141,7 @@ const Foundation: {
             {name: 'startAttrId', type: DataType.uint16},
             {name: 'maxAttrIds', type: DataType.uint8},
         ],
+        response: 13
     },
     discoverRsp: {
         ID: 13,
@@ -160,6 +161,22 @@ const Foundation: {
             {name: 'elementData', type: BuffaloZclDataType.USE_DATA_TYPE},
         ]
     },
+    discoverCommandsReceived: {
+        ID: 17,
+        parseStrategy: 'flat',
+        parameters: [
+            { name: 'startCmdId', type: DataType.uint8 },
+            { name: 'maxCmdIds', type: DataType.uint8 },
+        ],
+        response: 18
+    },
+    discoverCommandsReceivedRsp: {
+        ID: 18,
+        parseStrategy: 'oneof',
+        parameters: [
+            { name: 'cmdId', type: DataType.uint8 },
+        ]
+    }
 
     /**
      * TODO: not all commands are supported yet, missing:

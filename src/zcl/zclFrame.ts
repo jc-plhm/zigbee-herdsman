@@ -131,7 +131,7 @@ class ZclFrame {
             /* istanbul ignore else */
             if (command.parseStrategy === 'oneof') {
                 /* istanbul ignore else */
-                if (command === Foundation.discoverRsp) {
+                if (command === Foundation.discoverRsp || command === Foundation.discoverCommandsReceivedRsp) {
                     buffalo.writeUInt8(this.Payload.discComplete);
 
                     for (const entry of this.Payload.attrInfos) {
@@ -314,6 +314,22 @@ class ZclFrame {
                         }
 
                         payload.attrInfos.push(entry);
+                    }
+
+                    return payload;
+                }else if (command === Foundation.discoverCommandsReceivedRsp) {
+                    const payload: {[s: string]: BuffaloTsType.Value} = {};
+                    payload.discComplete = buffalo.readUInt8();
+                    payload.cmdInfos = [];
+
+                    while (buffalo.isMore()) {
+                        const entry: {[s: string]: BuffaloTsType.Value} = {};
+
+                        for (const parameter of command.parameters) {
+                            entry[parameter.name] = buffalo.read(DataType[parameter.type], {});
+                        }
+
+                        payload.cmdInfos.push(entry);
                     }
 
                     return payload;
