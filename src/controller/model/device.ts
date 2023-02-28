@@ -756,10 +756,10 @@ class Device extends Entity {
         this._interviewing = false;
         this.meta = {};
         const newEndpoints: Endpoint[] = [];
-        for (const endpoint of this.endpoints) {
-            newEndpoints.push(Endpoint.create(endpoint.ID, endpoint.profileID, endpoint.deviceID, 
-                endpoint.inputClusters, endpoint.outputClusters, this.networkAddress, this.ieeeAddr));
-        }
+        // for (const endpoint of this.endpoints) {
+        //     newEndpoints.push(Endpoint.create(endpoint.ID, endpoint.profileID, endpoint.deviceID,
+        //         endpoint.inputClusters, endpoint.outputClusters, this.networkAddress, this.ieeeAddr));
+        // }
         this._endpoints = newEndpoints;
     }
 
